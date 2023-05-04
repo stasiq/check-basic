@@ -1,0 +1,16 @@
+{
+    "name": "dev/check-basic",
+    "type": "script",
+    "autoload": {
+        "psr-4": {
+            "App\\": "src/App"
+        }
+    },
+    "authors": [
+        {
+            "name": "s.konovalov",
+            "email": "s.konovalov@intensa.ru"
+        }
+    ],
+    "require": {}
+}
