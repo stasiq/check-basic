@@ -12,5 +12,15 @@
             "email": "s.konovalov@intensa.ru"
         }
     ],
-    "require": {}
+    "require-dev": {
+        "dealerdirect/phpcodesniffer-composer-installer": "^1.0"
+    },
+    "config": {
+        "allow-plugins": {
+            "dealerdirect/phpcodesniffer-composer-installer": true
+        }
+    },
+    "require": {
+        "vlucas/phpdotenv": "^5.5"
+    }
 }

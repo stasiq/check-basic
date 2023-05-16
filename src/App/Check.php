@@ -2,64 +2,34 @@
 
 namespace App;
 
+use App\SendMail as Mail;
+
 class Check
 {
-    const URLS = [
-        'http://arsenaltula.intensa-dev.ru/',
-        'https://www.comagic.ru',
-        'https://www.arsenaltula.ru',
-        'http://comagic2.intensa-dev.ru',
-    ];
-    const FILES = [
-        'basic' => 'without-basic.txt',
-        'robots' => 'without-robots.txt',
-        'meta' => 'without-meta.txt',
+    private static array $urls = [];
+    private static array $withoutBasic = [];
+    private static array $withoutRobots = [];
+    private static array $withoutMeta = [];
 
-    ];
-    static private $withoutBasic = [];
-    static private $withoutRobots = [];
-    static private $withoutMeta = [];
-
-    function Check()
+    // Основной метод, для проверки и реализации результата.
+    public function check(): void
     {
-        self::Basic(self::URLS);
+        self::$urls = file('urls.txt', FILE_IGNORE_NEW_LINES);
+        self::basic(self::$urls);
 
         if (count(self::$withoutBasic) > 0) {
-            file_put_contents(self::FILES['basic'], '');
-            $current = file_get_contents(self::FILES['basic']);
-
-            foreach (self::$withoutBasic as $url) {
-                $current .= $url . "\n";
-                file_put_contents(self::FILES['basic'], $current);
-            }
-
-            self::Robots(self::$withoutBasic);
+            self::robots(self::$withoutBasic);
         }
 
         if (count(self::$withoutRobots) > 0) {
-            file_put_contents(self::FILES['robots'], '');
-
-            foreach (self::$withoutBasic as $url) {
-                $current = file_get_contents(self::FILES['robots']);
-                $current .= $url . "\n";
-                file_put_contents(self::FILES['robots'], $current);
-            }
-
-            self::Meta(self::$withoutBasic);
+            self::meta(self::$withoutRobots);
         }
 
-        if (count(self::$withoutMeta) > 0) {
-            file_put_contents(self::FILES['meta'], '');
-
-            foreach (self::$withoutBasic as $url) {
-                $current = file_get_contents(self::FILES['meta']);
-                $current .= $url . "\n";
-                file_put_contents(self::FILES['meta'], $current);
-            }
-        }
+        Mail::mail(self::$withoutBasic, self::$withoutRobots, self::$withoutMeta);
     }
 
-    static function Basic($urls)
+    // Метод, проверяющий присутствие basic авторизации
+    private static function basic($urls): void
     {
         foreach ($urls as $url) {
             $headers = get_headers($url, 1);
@@ -67,11 +37,11 @@ class Check
             if (!isset($headers['WWW-Authenticate'])) {
                 self::$withoutBasic[] = $url;
             }
-
         }
     }
 
-    private function Robots($urls)
+    // Метод, проверяющий robots.txt файл на закрытие индексации
+    private static function robots($urls): void
     {
         foreach ($urls as $url) {
             $robots_url = $url . '/robots.txt';
@@ -90,7 +60,8 @@ class Check
         }
     }
 
-    private function Meta($urls)
+    // Метод, проверяющий на наличие meta тега, закрывающего индексацию
+    private static function meta($urls): void
     {
         foreach ($urls as $url) {
             $content = file_get_contents($url);

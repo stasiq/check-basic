@@ -1,4 +1,2 @@
-/without-robots.txt
-/without-meta.txt
-/without-basic.txt
 /vendor/
+.env
